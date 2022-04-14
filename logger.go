@@ -1,4 +1,4 @@
-package plogs
+package glog
 
 import (
 	"fmt"
@@ -7,17 +7,15 @@ import (
 	"runtime/debug"
 	"sync"
 	"time"
-
-	"github.com/pyihe/go-pkg/bytes"
 )
 
 // 全局唯一Logger实例
-var defaultLogger *Logger
+var defaultLogger Logger
 
 // Logger 日志记录器
 type Logger struct {
-	wg           *sync.WaitGroup  // wg
-	once         *sync.Once       // once
+	wg           sync.WaitGroup   // wg
+	once         sync.Once        // once
 	closeTag     bool             // 是否关闭
 	closeChan    chan struct{}    // 关闭信号量
 	flushChan    chan struct{}    // flush buffer chan
@@ -27,27 +25,24 @@ type Logger struct {
 }
 
 // NewLogger 初始化defaultLogger
-func NewLogger(opts ...Option) (logger *Logger) {
-	if defaultLogger == nil {
-		defaultLogger = &Logger{
-			wg:        &sync.WaitGroup{},
-			once:      &sync.Once{},
-			closeTag:  false,
-			closeChan: make(chan struct{}),
-			flushChan: make(chan struct{}),
-			config: &LogConfig{
-				stdout:        false,
-				bufferSize:    10240,
-				writeOption:   WriteByMerged,
-				cutOption:     CutDaily,
-				writeLevel:    0,
-				flushDuration: 500 * time.Millisecond,
-				appName:       "plogs",
-				logPath:       "./logs",
-			},
-		}
-	}
+func Log(opts ...Option) (logger *Logger) {
 	defaultLogger.once.Do(func() {
+		//init
+
+		defaultLogger.closeTag = false
+		defaultLogger.closeChan = make(chan struct{})
+		defaultLogger.flushChan = make(chan struct{})
+		defaultLogger.config = &LogConfig{
+			stdout:        false,
+			bufferSize:    10240,
+			writeOption:   WriteByMerged,
+			cutOption:     CutDaily,
+			writeLevel:    0,
+			flushDuration: 500 * time.Millisecond,
+			appName:       "glogs",
+			logPath:       "./logs",
+		}
+		///
 		for _, op := range opts {
 			op(defaultLogger.config)
 		}
@@ -58,7 +53,7 @@ func NewLogger(opts ...Option) (logger *Logger) {
 		// 运行
 		defaultLogger.run()
 	})
-	return defaultLogger
+	return &defaultLogger
 }
 
 func (log *Logger) init() (err error) {
@@ -165,7 +160,7 @@ func (log *Logger) panic(message string) {
 	defer func() {
 		if err := recover(); err != nil {
 			mu := log.levelConfigs.mu
-			msg := bytes.String(debug.Stack())
+			msg := string(debug.Stack())
 			mu.Lock()
 			defer mu.Unlock()
 

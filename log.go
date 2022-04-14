@@ -1,4 +1,4 @@
-package plogs
+package glog
 
 func Panic(args ...interface{}) {
 	message := getMessage("", args)

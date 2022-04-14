@@ -20,49 +20,33 @@
 ### Usage
 
 ```go
-package main
-
-import (
-	"time"
-
-	"github.com/pyihe/plogs"
-)
-
 func main() {
-    opts := []plogs.Option{
-        plogs.WithCutOption(plogs.CutTenMin),
-        plogs.WithAppName("ALTIMA"),
-        plogs.WithBufferSize(1024),
-        plogs.WithFlushDuration(500 * time.Millisecond),
-        plogs.WithWriteOption(plogs.WriteByMerged),
-        plogs.WithLogPath("./files"),
-        plogs.WithWriteLevel(plogs.LevelFatal | plogs.LevelError | plogs.LevelWarning | plogs.LevelInfo | plogs.LevelDebug),
-        plogs.WithStdout(true),
-        plogs.WithMaxTime(24 * 60 * 60),
+    opts := []glog.Option{
+        glog.WithCutOption(glog.CutTenMin),
+        glog.WithAppName("ALTIMA"),
+        glog.WithBufferSize(1024),
+        glog.WithFlushDuration(500 * time.Millisecond),
+        glog.WithWriteOption(glog.WriteByMerged),
+        glog.WithLogPath("./files"),
+        glog.WithWriteLevel(glog.LevelFatal | glog.LevelError | glog.LevelWarning | glog.LevelInfo | glog.LevelDebug),
+        glog.WithStdout(true),
+        glog.WithMaxTime(24 * 60 * 60),
     }
     
-    logger := plogs.NewLogger(opts...)
-    defer logger.Close()
+    glog.Log(opts...)
     
-    plogs.Errorf("hello, this is level error")
-    plogs.Warnf("hello, this is level warn!")
-    plogs.Infof("hello, this is level info!")
-    plogs.Debugf("hello, this is level debug!")
-    plogs.Fatalf("hello, this is level fatal!")
-    plogs.Panic("hello, this is level panic!")
+	msg := "hello log"
+	glog.Debug(msg)
+	glog.Info(msg)
+	glog.Warn(msg)
+	glog.Error(msg)
+	glog.Fatal(msg)
+	glog.Panic(msg)
 }
 
 ```
-![](appendix/screenshot.png)
 
-![](appendix/panic.png)
 ### TODO
 
 - [x] 提供日志文件最长保存时间限制
-- [ ] 优化文件及代码行号: 不显示系统绝对路径，只显示文件及代码在项目中的相对路径
-
-### Thanks 
-
-感谢[Jetbrains开源开发许可证](https://www.jetbrains.com/zh-cn/community/opensource/#support) 提供的免费开发工具支持!
-
-![](appendix/source_jetbrains.png)
+- [ ] 优化文件及代码行号: 不显示系统绝对路径，只显示文件及代码在项目中的相对路
