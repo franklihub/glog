@@ -32,7 +32,7 @@ func main() {
         glog.WithStdout(true),
         glog.WithMaxTime(24 * 60 * 60),
     }
-    
+
     glog.Log(opts...)
     
 	msg := "hello log"
