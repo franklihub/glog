@@ -62,6 +62,9 @@ type levelConfig struct {
 }
 
 func (lc *levelConfig) init(root string) (err error) {
+	if root == "" {
+		return nil
+	}
 	nowTime := time.Now()
 	lc.prefix = lc.level.prefix()
 	lc.filePath = filepath.Join(root, lc.level.subPath())

@@ -105,8 +105,8 @@ func (l Level) colorCode() (code int) {
 		code = 35
 	case LevelWarning: // 黄色
 		code = 33
-	case LevelInfo: // 绿色
-		code = 34
+	case LevelInfo: // Tiffany蓝
+		code = 36
 	case LevelDebug: // 白色
 	}
 	return

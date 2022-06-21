@@ -1,6 +1,10 @@
 package glog
 
-import "time"
+import (
+	"os"
+	"path/filepath"
+	"time"
+)
 
 type Option func(c *LogConfig)
 
@@ -19,6 +23,10 @@ type LogConfig struct {
 
 // WithAppName 设置app名称
 func WithAppName(name string) Option {
+	if name == "" {
+		path, _ := os.Executable()
+		_, name = filepath.Split(path)
+	}
 	return func(c *LogConfig) {
 		if len(name) > 0 {
 			c.appName = name

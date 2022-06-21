@@ -3,6 +3,7 @@ package glog
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 	"runtime/debug"
 	"sync"
@@ -24,8 +25,23 @@ type Logger struct {
 	levelConfigs *levelList       // 需要输出的各个级别对应的配置
 }
 
+var defOpts = []Option{
+	WithCutOption(CutPer60M),
+	WithAppName(""),
+	WithBufferSize(1024),
+	WithFlushDuration(500 * time.Millisecond),
+	WithWriteOption(WriteByMerged),
+	WithLogPath(""),
+	WithWriteLevel(LevelPanic | LevelFatal | LevelError | LevelWarning | LevelInfo | LevelDebug),
+	WithStdout(true),
+	WithMaxTime(24 * 60 * 60),
+}
+
 // NewLogger 初始化defaultLogger
 func Log(opts ...Option) (logger *Logger) {
+	if len(opts) == 0 {
+		opts = defOpts
+	}
 	defaultLogger.once.Do(func() {
 		//init
 
@@ -40,7 +56,7 @@ func Log(opts ...Option) (logger *Logger) {
 			writeLevel:    0,
 			flushDuration: 500 * time.Millisecond,
 			appName:       "glogs",
-			logPath:       "./logs",
+			logPath:       "",
 		}
 		///
 		for _, op := range opts {
@@ -222,10 +238,11 @@ func (log *Logger) splicingMessage(level Level, message string) (msg *logMessage
 	if !ok {
 		return
 	}
-
-	// TODO 如何不获取绝对路径，而是项目的相对路径
-	//base, _ := filepath.Abs("")
-	//fileName = strings.TrimPrefix(fileName, fmt.Sprintf("%s%s", filepath.Dir(base), string(filepath.Separator)))
+	dir, file := filepath.Split(fileName)
+	dir = filepath.Base(dir)
+	fileName = dir + "/" + file
+	// base, _ := filepath.Abs("")
+	// fileName = strings.TrimPrefix(fileName, fmt.Sprintf("%s%s", filepath.Dir(base), string(filepath.Separator)))
 
 	//list := filepath.SplitList(fileName)
 	//if n := len(list); n > 2 {
@@ -356,4 +373,9 @@ func getMessage(template string, fmtArgs []interface{}) string {
 		}
 	}
 	return fmt.Sprint(fmtArgs...)
+}
+
+////
+func init() {
+	Log()
 }
